@@ -20,6 +20,18 @@ class NguoiDung extends Authenticatable
         'Vaitro',
     ];
 
+    protected $hidden = [
+        'MatKhau',
+    ];
+
+    /**
+     * Override the default getAuthPassword method since our column is MatKhau
+     */
+    public function getAuthPassword()
+    {
+        return $this->MatKhau;
+    }
+
     public function hoSoCVs()
     {
         return $this->hasMany(HoSoCV::class, 'MaTaiKhoan', 'MaTaiKhoan');
