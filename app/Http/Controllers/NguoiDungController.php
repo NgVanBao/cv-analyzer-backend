@@ -71,43 +71,4 @@ class NguoiDungController extends Controller
             'message' => 'Xóa người dùng thành công!'
         ]);
     }
-
-    public function login(Request $request)
-    {
-        $request->validate([
-            'Email' => 'required|email',
-            'MatKhau' => 'required',
-        ]);
-
-        $user = NguoiDung::where('Email', $request->Email)->first();
-
-        if (!$user || !Hash::check($request->MatKhau, $user->MatKhau)) {
-            return response()->json([
-                'message' => 'Thông tin đăng nhập không chính xác.'
-            ], 401);
-        }
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'Đăng nhập thành công!',
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'user' => $user
-        ]);
-    }
-
-    public function logout(Request $request)
-    {
-        $request->user()->currentAccessToken()->delete();
-
-        return response()->json([
-            'message' => 'Đăng xuất thành công!'
-        ]);
-    }
-
-    public function me(Request $request)
-    {
-        return response()->json($request->user());
-    }
 }
