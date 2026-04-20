@@ -9,13 +9,7 @@ class KyNangYeuCauController extends Controller
 {
     public function index()
     {
-        $kyNangYeuCaus = KyNangYeuCau::all();
-        return view('ky_nang_yeu_cau.index', compact('kyNangYeuCaus'));
-    }
-
-    public function create()
-    {
-        return view('ky_nang_yeu_cau.create');
+        return response()->json(KyNangYeuCau::all());
     }
 
     public function store(Request $request)
@@ -25,14 +19,16 @@ class KyNangYeuCauController extends Controller
             'MaTuyenDung' => 'required|integer|exists:tin_tuyen_dung,MaTuyenDung',
             'TrongSoDiem' => 'nullable|integer|min:0',
         ]);
-        KyNangYeuCau::create($validated);
-        return redirect()->route('ky_nang_yeu_cau.index')->with('success', 'Thêm kỹ năng yêu cầu thành công!');
+        $kyNangYeuCau = KyNangYeuCau::create($validated);
+        return response()->json([
+            'message' => 'Thêm kỹ năng yêu cầu thành công!',
+            'data' => $kyNangYeuCau
+        ], 201);
     }
 
-    public function edit($id)
+    public function show($id)
     {
-        $kyNangYeuCau = KyNangYeuCau::findOrFail($id);
-        return view('ky_nang_yeu_cau.edit', compact('kyNangYeuCau'));
+        return response()->json(KyNangYeuCau::findOrFail($id));
     }
 
     public function update(Request $request, $id)
@@ -44,13 +40,18 @@ class KyNangYeuCauController extends Controller
             'TrongSoDiem' => 'nullable|integer|min:0',
         ]);
         $kyNangYeuCau->update($validated);
-        return redirect()->route('ky_nang_yeu_cau.index')->with('success', 'Cập nhật thành công!');
+        return response()->json([
+            'message' => 'Cập nhật thành công!',
+            'data' => $kyNangYeuCau
+        ]);
     }
 
     public function destroy($id)
     {
         $kyNangYeuCau = KyNangYeuCau::findOrFail($id);
         $kyNangYeuCau->delete();
-        return redirect()->route('ky_nang_yeu_cau.index')->with('success', 'Xóa thành công!');
+        return response()->json([
+            'message' => 'Xóa thành công!'
+        ]);
     }
 }

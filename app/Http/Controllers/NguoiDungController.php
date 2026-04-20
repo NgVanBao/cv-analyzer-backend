@@ -10,13 +10,7 @@ class NguoiDungController extends Controller
 {
     public function index()
     {
-        $nguoiDungs = NguoiDung::all();
-        return view('nguoi_dung.index', compact('nguoiDungs'));
-    }
-
-    public function create()
-    {
-        return view('nguoi_dung.create');
+        return response()->json(NguoiDung::all());
     }
 
     public function store(Request $request)
@@ -30,15 +24,17 @@ class NguoiDungController extends Controller
 
         $validated['MatKhau'] = Hash::make($validated['MatKhau']);
 
-        NguoiDung::create($validated);
+        $nguoiDung = NguoiDung::create($validated);
 
-        return redirect()->route('nguoi_dung.index')->with('success', 'Thêm người dùng thành công!');
+        return response()->json([
+            'message' => 'Thêm người dùng thành công!',
+            'data' => $nguoiDung
+        ], 201);
     }
 
-    public function edit($id)
+    public function show($id)
     {
-        $nguoiDung = NguoiDung::findOrFail($id);
-        return view('nguoi_dung.edit', compact('nguoiDung'));
+        return response()->json(NguoiDung::findOrFail($id));
     }
 
     public function update(Request $request, $id)
@@ -60,7 +56,10 @@ class NguoiDungController extends Controller
 
         $nguoiDung->update($validated);
 
-        return redirect()->route('nguoi_dung.index')->with('success', 'Cập nhật tài khoản thành công!');
+        return response()->json([
+            'message' => 'Cập nhật tài khoản thành công!',
+            'data' => $nguoiDung
+        ]);
     }
 
     public function destroy($id)
@@ -68,6 +67,47 @@ class NguoiDungController extends Controller
         $nguoiDung = NguoiDung::findOrFail($id);
         $nguoiDung->delete();
 
-        return redirect()->route('nguoi_dung.index')->with('success', 'Xóa người dùng thành công!');
+        return response()->json([
+            'message' => 'Xóa người dùng thành công!'
+        ]);
+    }
+
+    public function login(Request $request)
+    {
+        $request->validate([
+            'Email' => 'required|email',
+            'MatKhau' => 'required',
+        ]);
+
+        $user = NguoiDung::where('Email', $request->Email)->first();
+
+        if (!$user || !Hash::check($request->MatKhau, $user->MatKhau)) {
+            return response()->json([
+                'message' => 'Thông tin đăng nhập không chính xác.'
+            ], 401);
+        }
+
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Đăng nhập thành công!',
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $user
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Đăng xuất thành công!'
+        ]);
+    }
+
+    public function me(Request $request)
+    {
+        return response()->json($request->user());
     }
 }

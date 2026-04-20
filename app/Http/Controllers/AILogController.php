@@ -9,13 +9,7 @@ class AILogController extends Controller
 {
     public function index()
     {
-        $aiLogs = AILog::all();
-        return view('ai_log.index', compact('aiLogs'));
-    }
-
-    public function create()
-    {
-        return view('ai_log.create');
+        return response()->json(AILog::all());
     }
 
     public function store(Request $request)
@@ -26,14 +20,16 @@ class AILogController extends Controller
             'TrangThai' => 'required|string|max:50',
             'NoiDungLog' => 'required|string',
         ]);
-        AILog::create($validated);
-        return redirect()->route('ai_log.index')->with('success', 'Thêm AI Log thành công!');
+        $aiLog = AILog::create($validated);
+        return response()->json([
+            'message' => 'Thêm AI Log thành công!',
+            'data' => $aiLog
+        ], 201);
     }
 
-    public function edit($id)
+    public function show($id)
     {
-        $aiLog = AILog::findOrFail($id);
-        return view('ai_log.edit', compact('aiLog'));
+        return response()->json(AILog::findOrFail($id));
     }
 
     public function update(Request $request, $id)
@@ -46,13 +42,18 @@ class AILogController extends Controller
             'NoiDungLog' => 'required|string',
         ]);
         $aiLog->update($validated);
-        return redirect()->route('ai_log.index')->with('success', 'Cập nhật thành công!');
+        return response()->json([
+            'message' => 'Cập nhật thành công!',
+            'data' => $aiLog
+        ]);
     }
 
     public function destroy($id)
     {
         $aiLog = AILog::findOrFail($id);
         $aiLog->delete();
-        return redirect()->route('ai_log.index')->with('success', 'Xóa AI Log thành công!');
+        return response()->json([
+            'message' => 'Xóa AI Log thành công!'
+        ]);
     }
 }

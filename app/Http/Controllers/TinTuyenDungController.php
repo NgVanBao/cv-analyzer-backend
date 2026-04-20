@@ -9,13 +9,7 @@ class TinTuyenDungController extends Controller
 {
     public function index()
     {
-        $tinTuyenDungs = TinTuyenDung::all();
-        return view('tin_tuyen_dung.index', compact('tinTuyenDungs'));
-    }
-
-    public function create()
-    {
-        return view('tin_tuyen_dung.create');
+        return response()->json(TinTuyenDung::all());
     }
 
     public function store(Request $request)
@@ -28,14 +22,16 @@ class TinTuyenDungController extends Controller
             'LuongToiDa' => 'nullable|integer|gte:LuongToiThieu',
             'TrangThai' => 'required|string|max:50',
         ]);
-        TinTuyenDung::create($validated);
-        return redirect()->route('tin_tuyen_dung.index')->with('success', 'Thêm tin tuyển dụng thành công!');
+        $tinTuyenDung = TinTuyenDung::create($validated);
+        return response()->json([
+            'message' => 'Thêm tin tuyển dụng thành công!',
+            'data' => $tinTuyenDung
+        ], 201);
     }
 
-    public function edit($id)
+    public function show($id)
     {
-        $tinTuyenDung = TinTuyenDung::findOrFail($id);
-        return view('tin_tuyen_dung.edit', compact('tinTuyenDung'));
+        return response()->json(TinTuyenDung::findOrFail($id));
     }
 
     public function update(Request $request, $id)
@@ -50,13 +46,18 @@ class TinTuyenDungController extends Controller
             'TrangThai' => 'required|string|max:50',
         ]);
         $tinTuyenDung->update($validated);
-        return redirect()->route('tin_tuyen_dung.index')->with('success', 'Cập nhật thành công!');
+        return response()->json([
+            'message' => 'Cập nhật thành công!',
+            'data' => $tinTuyenDung
+        ]);
     }
 
     public function destroy($id)
     {
         $tinTuyenDung = TinTuyenDung::findOrFail($id);
         $tinTuyenDung->delete();
-        return redirect()->route('tin_tuyen_dung.index')->with('success', 'Xóa thành công!');
+        return response()->json([
+            'message' => 'Xóa thành công!'
+        ]);
     }
 }

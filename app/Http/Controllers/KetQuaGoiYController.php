@@ -9,13 +9,7 @@ class KetQuaGoiYController extends Controller
 {
     public function index()
     {
-        $ketQuaGoiYs = KetQuaGoiY::all();
-        return view('ket_qua_goi_y.index', compact('ketQuaGoiYs'));
-    }
-
-    public function create()
-    {
-        return view('ket_qua_goi_y.create');
+        return response()->json(KetQuaGoiY::all());
     }
 
     public function store(Request $request)
@@ -25,14 +19,16 @@ class KetQuaGoiYController extends Controller
             'MaTuyenDung' => 'required|integer|exists:tin_tuyen_dung,MaTuyenDung',
             'TyLePhuHop' => 'required|numeric|min:0|max:100',
         ]);
-        KetQuaGoiY::create($validated);
-        return redirect()->route('ket_qua_goi_y.index')->with('success', 'Thêm kết quả gợi ý thành công!');
+        $ketQuaGoiY = KetQuaGoiY::create($validated);
+        return response()->json([
+            'message' => 'Thêm kết quả gợi ý thành công!',
+            'data' => $ketQuaGoiY
+        ], 201);
     }
 
-    public function edit($id)
+    public function show($id)
     {
-        $ketQuaGoiY = KetQuaGoiY::findOrFail($id);
-        return view('ket_qua_goi_y.edit', compact('ketQuaGoiY'));
+        return response()->json(KetQuaGoiY::findOrFail($id));
     }
 
     public function update(Request $request, $id)
@@ -44,13 +40,18 @@ class KetQuaGoiYController extends Controller
             'TyLePhuHop' => 'required|numeric|min:0|max:100',
         ]);
         $ketQuaGoiY->update($validated);
-        return redirect()->route('ket_qua_goi_y.index')->with('success', 'Cập nhật thành công!');
+        return response()->json([
+            'message' => 'Cập nhật thành công!',
+            'data' => $ketQuaGoiY
+        ]);
     }
 
     public function destroy($id)
     {
         $ketQuaGoiY = KetQuaGoiY::findOrFail($id);
         $ketQuaGoiY->delete();
-        return redirect()->route('ket_qua_goi_y.index')->with('success', 'Xóa thành công!');
+        return response()->json([
+            'message' => 'Xóa thành công!'
+        ]);
     }
 }

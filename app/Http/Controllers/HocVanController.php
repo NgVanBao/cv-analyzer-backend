@@ -9,13 +9,7 @@ class HocVanController extends Controller
 {
     public function index()
     {
-        $hocVans = HocVan::all();
-        return view('hoc_van.index', compact('hocVans'));
-    }
-
-    public function create()
-    {
-        return view('hoc_van.create');
+        return response()->json(HocVan::all());
     }
 
     public function store(Request $request)
@@ -28,14 +22,16 @@ class HocVanController extends Controller
             'ThoiGianTu' => 'required|date',
             'ThoiGianDen' => 'nullable|date|after_or_equal:ThoiGianTu',
         ]);
-        HocVan::create($validated);
-        return redirect()->route('hoc_van.index')->with('success', 'Thêm học vấn thành công!');
+        $hocVan = HocVan::create($validated);
+        return response()->json([
+            'message' => 'Thêm học vấn thành công!',
+            'data' => $hocVan
+        ], 201);
     }
 
-    public function edit($id)
+    public function show($id)
     {
-        $hocVan = HocVan::findOrFail($id);
-        return view('hoc_van.edit', compact('hocVan'));
+        return response()->json(HocVan::findOrFail($id));
     }
 
     public function update(Request $request, $id)
@@ -50,13 +46,18 @@ class HocVanController extends Controller
             'ThoiGianDen' => 'nullable|date|after_or_equal:ThoiGianTu',
         ]);
         $hocVan->update($validated);
-        return redirect()->route('hoc_van.index')->with('success', 'Cập nhật thành công!');
+        return response()->json([
+            'message' => 'Cập nhật thành công!',
+            'data' => $hocVan
+        ]);
     }
 
     public function destroy($id)
     {
         $hocVan = HocVan::findOrFail($id);
         $hocVan->delete();
-        return redirect()->route('hoc_van.index')->with('success', 'Xóa học vấn thành công!');
+        return response()->json([
+            'message' => 'Xóa học vấn thành công!'
+        ]);
     }
 }

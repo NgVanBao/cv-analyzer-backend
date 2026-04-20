@@ -9,13 +9,9 @@ class HoSoCVController extends Controller
 {
     public function index()
     {
-        $hoSoCVs = HoSoCV::all();
-        return view('ho_so_cv.index', compact('hoSoCVs'));
+        return response()->json(HoSoCV::all());
     }
-    public function create()
-    {
-        return view('ho_so_cv.create');
-    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -28,14 +24,18 @@ class HoSoCVController extends Controller
             'KinhNghiem' => 'nullable|string',
             'KyNang' => 'nullable|string',
         ]);
-        HoSoCV::create($validated);
-        return redirect()->route('ho_so_cv.index');
+        $hoSoCV = HoSoCV::create($validated);
+        return response()->json([
+            'message' => 'Tạo hồ sơ CV thành công!',
+            'data' => $hoSoCV
+        ], 201);
     }
-    public function edit($id)
+
+    public function show($id)
     {
-        $hoSoCV = HoSoCV::findOrFail($id);
-        return view('ho_so_cv.edit', compact('hoSoCV'));
+        return response()->json(HoSoCV::findOrFail($id));
     }
+
     public function update(Request $request, $id)
     {
         $hoSoCV = HoSoCV::findOrFail($id);
@@ -50,12 +50,18 @@ class HoSoCVController extends Controller
             'KyNang' => 'nullable|string',
         ]);
         $hoSoCV->update($validated);
-        return redirect()->route('ho_so_cv.index');
+        return response()->json([
+            'message' => 'Cập nhật hồ sơ CV thành công!',
+            'data' => $hoSoCV
+        ]);
     }
+
     public function destroy($id)
     {
         $hoSoCV = HoSoCV::findOrFail($id);
         $hoSoCV->delete();
-        return redirect()->route('ho_so_cv.index');
+        return response()->json([
+            'message' => 'Xóa hồ sơ CV thành công!'
+        ]);
     }
 }

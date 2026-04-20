@@ -9,13 +9,7 @@ class KinhNghiemLamViecController extends Controller
 {
     public function index()
     {
-        $kinhNghiemLamViec = KinhNghiemLamViec::all();
-        return view('kinh_nghiem_lam_viec.index', compact('kinhNghiemLamViec'));
-    }
-
-    public function create()
-    {
-        return view('kinh_nghiem_lam_viec.create');
+        return response()->json(KinhNghiemLamViec::all());
     }
 
     public function store(Request $request)
@@ -28,19 +22,21 @@ class KinhNghiemLamViecController extends Controller
             'ThoiGianDen' => 'nullable|date|after_or_equal:ThoiGianTu',
             'MoTaChiTiet' => 'nullable|string',
         ]);
-        KinhNghiemLamViec::create($validated);
-        return redirect()->route('kinh_nghiem_lam_viec.index')->with('success', 'Thêm kinh nghiệm thành công!');
+        $kinhNghiem = KinhNghiemLamViec::create($validated);
+        return response()->json([
+            'message' => 'Thêm kinh nghiệm thành công!',
+            'data' => $kinhNghiem
+        ], 201);
     }
 
-    public function edit($id)
+    public function show($id)
     {
-        $kinhNghiemLamViec = KinhNghiemLamViec::findOrFail($id);
-        return view('kinh_nghiem_lam_viec.edit', compact('kinhNghiemLamViec'));
+        return response()->json(KinhNghiemLamViec::findOrFail($id));
     }
 
     public function update(Request $request, $id)
     {
-        $kinhNghiemLamViec = KinhNghiemLamViec::findOrFail($id);
+        $kinhNghiem = KinhNghiemLamViec::findOrFail($id);
         $validated = $request->validate([
             'MaCV' => 'required|integer|exists:ho_so_cv,MaCV',
             'TenCongTy' => 'required|string|max:255',
@@ -49,14 +45,19 @@ class KinhNghiemLamViecController extends Controller
             'ThoiGianDen' => 'nullable|date|after_or_equal:ThoiGianTu',
             'MoTaChiTiet' => 'nullable|string',
         ]);
-        $kinhNghiemLamViec->update($validated);
-        return redirect()->route('kinh_nghiem_lam_viec.index')->with('success', 'Cập nhật thành công!');
+        $kinhNghiem->update($validated);
+        return response()->json([
+            'message' => 'Cập nhật thành công!',
+            'data' => $kinhNghiem
+        ]);
     }
 
     public function destroy($id)
     {
-        $kinhNghiemLamViec = KinhNghiemLamViec::findOrFail($id);
-        $kinhNghiemLamViec->delete();
-        return redirect()->route('kinh_nghiem_lam_viec.index')->with('success', 'Xóa thành công!');
+        $kinhNghiem = KinhNghiemLamViec::findOrFail($id);
+        $kinhNghiem->delete();
+        return response()->json([
+            'message' => 'Xóa thành công!'
+        ]);
     }
 }
