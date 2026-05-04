@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tin_tuyen_dung', function (Blueprint $table) {
+        Schema::create('TinTuyenDung', function (Blueprint $table) {
             $table->increments('MaTuyenDung');
             $table->string('TieuDe', 255);
             $table->string('TenCongTy', 255);
@@ -19,6 +19,11 @@ return new class extends Migration
             $table->integer('LuongToiThieu')->nullable();
             $table->integer('LuongToiDa')->nullable();
             $table->string('TrangThai', 50);
+            $table->string('DiaDiem', 255)->nullable();
+            $table->date('NgayDangTuyen')->nullable();
+            $table->date('HanNop')->nullable();
+            $table->string('LoaiHinh', 100)->nullable();
+            $table->string('CapBac', 100)->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tin_tuyen_dung');
+        Schema::dropIfExists('TinTuyenDung');
     }
 };

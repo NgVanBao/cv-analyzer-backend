@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ai_log', function (Blueprint $table) {
+        Schema::create('AI_Log', function (Blueprint $table) {
             $table->increments('MaLog');
             $table->unsignedInteger('MaCV');
             $table->date('ThoiGian');
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('NoiDungLog');
             $table->timestamps();
 
-            $table->foreign('MaCV')->references('MaCV')->on('ho_so_cv')->onDelete('cascade');
+            $table->foreign('MaCV')->references('MaCV')->on('HoSoCV')->onDelete('cascade');
         });
     }
 
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ai_log');
+        Schema::dropIfExists('AI_Log');
     }
 };

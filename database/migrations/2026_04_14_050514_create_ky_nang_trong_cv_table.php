@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ky_nang_trong_cv', function (Blueprint $table) {
+        Schema::create('KyNangTrongCV', function (Blueprint $table) {
             $table->unsignedInteger('MaKyNang');
             $table->unsignedInteger('MaCV');
+            $table->string('MucDo', 50)->nullable();
             $table->timestamps();
 
             $table->primary(['MaKyNang', 'MaCV']);
-            $table->foreign('MaKyNang')->references('MaKyNang')->on('tu_dien_ky_nang')->onDelete('cascade');
-            $table->foreign('MaCV')->references('MaCV')->on('ho_so_cv')->onDelete('cascade');
+            $table->foreign('MaKyNang')->references('MaKyNang')->on('TuDienKyNang')->onDelete('cascade');
+            $table->foreign('MaCV')->references('MaCV')->on('HoSoCV')->onDelete('cascade');
         });
     }
 
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ky_nang_trong_cv');
+        Schema::dropIfExists('KyNangTrongCV');
     }
 };
