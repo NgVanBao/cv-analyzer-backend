@@ -70,4 +70,42 @@ class AuthController extends Controller
     {
         return response()->json($request->user());
     }
+    public function updateEmail(Request $request)
+    {
+        $request->validate([
+            'Email' => 'required|email|unique:nguoi_dung,Email,' . $request->user()->MaTaiKhoan . ',MaTaiKhoan',
+        ]);
+
+        $user = $request->user();
+        $user->Email = $request->Email;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Cập nhật email thành công!',
+            'user' => $user
+        ]);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:6',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->current_password, $user->MatKhau)) {
+            return response()->json([
+                'message' => 'Mật khẩu hiện tại không chính xác.'
+            ], 400);
+        }
+
+        $user->MatKhau = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json([
+            'message' => 'Cập nhật mật khẩu thành công!'
+        ]);
+    }
 }
