@@ -9,7 +9,7 @@ class HoSoCV extends Model
 {
     use HasFactory;
 
-    protected $table = 'ho_so_cv';
+    protected $table = 'HoSoCV';
     protected $primaryKey = 'MaCV';
     public $timestamps = true;
 

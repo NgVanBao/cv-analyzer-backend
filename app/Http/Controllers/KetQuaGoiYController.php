@@ -15,8 +15,8 @@ class KetQuaGoiYController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'MaCV' => 'required|integer|exists:ho_so_cv,MaCV',
-            'MaTuyenDung' => 'required|integer|exists:tin_tuyen_dung,MaTuyenDung',
+            'MaCV' => 'required|integer|exists:HoSoCV,MaCV',
+            'MaTuyenDung' => 'required|integer|exists:TinTuyenDung,MaTuyenDung',
             'TyLePhuHop' => 'required|numeric|min:0|max:100',
         ]);
         $ketQuaGoiY = KetQuaGoiY::create($validated);
@@ -35,8 +35,8 @@ class KetQuaGoiYController extends Controller
     {
         $ketQuaGoiY = KetQuaGoiY::findOrFail($id);
         $validated = $request->validate([
-            'MaCV' => 'required|integer|exists:ho_so_cv,MaCV',
-            'MaTuyenDung' => 'required|integer|exists:tin_tuyen_dung,MaTuyenDung',
+            'MaCV' => 'required|integer|exists:HoSoCV,MaCV',
+            'MaTuyenDung' => 'required|integer|exists:TinTuyenDung,MaTuyenDung',
             'TyLePhuHop' => 'required|numeric|min:0|max:100',
         ]);
         $ketQuaGoiY->update($validated);

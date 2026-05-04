@@ -13,7 +13,7 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'HoTen' => 'required|string|max:255',
-            'Email' => 'required|email|unique:nguoi_dung,Email',
+            'Email' => 'required|email|unique:NguoiDung,Email',
             'MatKhau' => 'required|string|min:6',
             'Vaitro' => 'required|string|max:50',
         ]);
@@ -73,7 +73,7 @@ class AuthController extends Controller
     public function updateEmail(Request $request)
     {
         $request->validate([
-            'Email' => 'required|email|unique:nguoi_dung,Email,' . $request->user()->MaTaiKhoan . ',MaTaiKhoan',
+            'Email' => 'required|email|unique:NguoiDung,Email,' . $request->user()->MaTaiKhoan . ',MaTaiKhoan',
         ]);
 
         $user = $request->user();

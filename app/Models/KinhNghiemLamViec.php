@@ -9,7 +9,7 @@ class KinhNghiemLamViec extends Model
 {
     use HasFactory;
 
-    protected $table = 'kinh_nghiem_lam_viec';
+    protected $table = 'KinhNghiemLamViec';
     protected $primaryKey = 'MaKinhNghiem';
     public $timestamps = true;
 

@@ -17,7 +17,7 @@ class NguoiDungController extends Controller
     {
         $validated = $request->validate([
             'HoTen' => 'required|string|max:255',
-            'Email' => 'required|email|unique:nguoi_dung,Email',
+            'Email' => 'required|email|unique:NguoiDung,Email',
             'MatKhau' => 'required|string|min:6',
             'Vaitro' => 'required|string|max:50',
         ]);
@@ -43,7 +43,7 @@ class NguoiDungController extends Controller
 
         $validated = $request->validate([
             'HoTen' => 'required|string|max:255',
-            'Email' => 'required|email|unique:nguoi_dung,Email,' . $id . ',MaTaiKhoan',
+            'Email' => 'required|email|unique:NguoiDung,Email,' . $id . ',MaTaiKhoan',
             'MatKhau' => 'nullable|string|min:6',
             'Vaitro' => 'required|string|max:50',
         ]);

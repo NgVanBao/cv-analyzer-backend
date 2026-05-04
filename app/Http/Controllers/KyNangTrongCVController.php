@@ -14,8 +14,9 @@ class KyNangTrongCVController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'MaKyNang' => 'required|integer|exists:tu_dien_ky_nang,MaKyNang',
-            'MaCV' => 'required|integer|exists:ho_so_cv,MaCV',
+            'MaKyNang' => 'required|integer|exists:TuDienKyNang,MaKyNang',
+            'MaCV' => 'required|integer|exists:HoSoCV,MaCV',
+            'MucDo' => 'nullable|string|max:50',
         ]);
         $kyNang = KyNangTrongCV::create($validated);
         return response()->json([
@@ -33,8 +34,9 @@ class KyNangTrongCVController extends Controller
     {
         $kyNangTrongCV = KyNangTrongCV::findOrFail($id);
         $validated = $request->validate([
-            'MaKyNang' => 'required|integer|exists:tu_dien_ky_nang,MaKyNang',
-            'MaCV' => 'required|integer|exists:ho_so_cv,MaCV',
+            'MaKyNang' => 'required|integer|exists:TuDienKyNang,MaKyNang',
+            'MaCV' => 'required|integer|exists:HoSoCV,MaCV',
+            'MucDo' => 'nullable|string|max:50',
         ]);
         $kyNangTrongCV->update($validated);
         return response()->json([

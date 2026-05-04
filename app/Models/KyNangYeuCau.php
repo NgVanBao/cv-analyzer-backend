@@ -9,7 +9,7 @@ class KyNangYeuCau extends Model
 {
     use HasFactory;
 
-    protected $table = 'ky_nang_yeu_cau';
+    protected $table = 'KyNangYeuCau';
 
     // Vô hiệu hoá auto increment vì bảng này dùng composite primary key
     public $incrementing = false;

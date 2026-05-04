@@ -9,7 +9,7 @@ class AILog extends Model
 {
     use HasFactory;
 
-    protected $table = 'ai_log';
+    protected $table = 'AI_Log';
 
     protected $primaryKey = 'MaLog';
 

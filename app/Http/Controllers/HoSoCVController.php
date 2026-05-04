@@ -15,7 +15,7 @@ class HoSoCVController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'MaTaiKhoan' => 'required|integer|exists:nguoi_dung,MaTaiKhoan',
+            'MaTaiKhoan' => 'required|integer|exists:NguoiDung,MaTaiKhoan',
             'TenFile' => 'required|string|max:255',
             'DuongDanFile' => 'required|string|max:255',
             'DuLieuAITrichXuat' => 'nullable|string',
@@ -40,7 +40,7 @@ class HoSoCVController extends Controller
     {
         $hoSoCV = HoSoCV::findOrFail($id);
         $validated = $request->validate([
-            'MaTaiKhoan' => 'required|integer|exists:nguoi_dung,MaTaiKhoan',
+            'MaTaiKhoan' => 'required|integer|exists:NguoiDung,MaTaiKhoan',
             'TenFile' => 'required|string|max:255',
             'DuongDanFile' => 'required|string|max:255',
             'DuLieuAITrichXuat' => 'nullable|string',

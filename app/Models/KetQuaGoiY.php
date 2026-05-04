@@ -9,7 +9,7 @@ class KetQuaGoiY extends Model
 {
     use HasFactory;
 
-    protected $table = 'ket_qua_goi_y';
+    protected $table = 'KetQuaGoiY';
     protected $primaryKey = 'MaKetQua';
     public $timestamps = true;
 
