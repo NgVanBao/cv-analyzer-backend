@@ -88,6 +88,7 @@ Route::post('ket-qua-goi-y', [KetQuaGoiYController::class, 'store']);
 Route::get('ket-qua-goi-y/{id}', [KetQuaGoiYController::class, 'show']);
 Route::put('ket-qua-goi-y/{id}', [KetQuaGoiYController::class, 'update']);
 Route::delete('ket-qua-goi-y/{id}', [KetQuaGoiYController::class, 'destroy']);
+Route::get('ket-qua-goi-y/cv/{cvId}', [KetQuaGoiYController::class, 'getByCV']);
 
 
 Route::get('ai-log', [AILogController::class, 'index']);

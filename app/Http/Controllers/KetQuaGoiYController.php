@@ -54,4 +54,17 @@ class KetQuaGoiYController extends Controller
             'message' => 'Xóa thành công!'
         ]);
     }
+
+    /**
+     * Lấy danh sách gợi ý việc làm cho một CV cụ thể kèm thông tin công việc
+     */
+    public function getByCV($cvId)
+    {
+        $results = KetQuaGoiY::with('tinTuyenDung')
+            ->where('MaCV', $cvId)
+            ->orderBy('TyLePhuHop', 'desc')
+            ->get();
+
+        return response()->json($results);
+    }
 }

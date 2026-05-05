@@ -21,7 +21,6 @@ class HoSoCV extends Model
         'TrangThaiXuLy',
         'TrinhDoHocVan',
         'KinhNghiem',
-        'KyNang',
     ];
 
     public function nguoiDung()
