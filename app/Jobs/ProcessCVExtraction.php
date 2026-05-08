@@ -38,7 +38,7 @@ class ProcessCVExtraction implements ShouldQueue
     public function handle(AIService $aiService): void
     {
         $cv = HoSoCV::find($this->cvId);
-        
+
         if (!$cv) {
             return;
         }
@@ -51,25 +51,25 @@ class ProcessCVExtraction implements ShouldQueue
                 throw new \Exception("File CV không tồn tại: " . $filePath);
             }
 
-            // 1. Trích xuất Text từ file PDF
+            //  Trích xuất Text từ file PDF
             $parser = new Parser();
-            $pdf    = $parser->parseFile($filePath);
+            $pdf = $parser->parseFile($filePath);
             $rawText = $pdf->getText();
 
             // Rút gọn text nếu quá dài (Sử dụng mb_substr để không làm hỏng ký tự có dấu)
             $rawText = mb_substr($rawText, 0, 15000, 'UTF-8');
-            
+
             // Đảm bảo không dính ký tự lỗi không xác định
             $rawText = mb_convert_encoding($rawText, 'UTF-8', 'UTF-8');
 
-            // 2. Gọi AI Service
+            // Gọi AI Service
             $extractedData = $aiService->extractCVData($rawText);
 
             if (!$extractedData) {
                 throw new \Exception("Gemini API không thể bóc tách dữ liệu hợp lệ.");
             }
 
-            // 3. Cập nhật dữ liệu thô vào bảng HoSoCV
+            //  Cập nhật dữ liệu thô vào bảng HoSoCV
             $cv->DuLieuAITrichXuat = json_encode($extractedData, JSON_UNESCAPED_UNICODE);
             $cv->TrinhDoHocVan = mb_substr($extractedData['summary'] ?? null, 0, 100, 'UTF-8');
             // Xóa bớt log cũ nếu có (tránh trùng nếu retry)
@@ -77,7 +77,7 @@ class ProcessCVExtraction implements ShouldQueue
             $cv->kinhNghiemLamViecs()->delete();
             $cv->kyNangTrongCVs()->delete();
 
-            // 4. Lưu Học vấn
+            // Học vấn
             if (!empty($extractedData['education']) && is_array($extractedData['education'])) {
                 foreach ($extractedData['education'] as $edu) {
                     HocVan::create([
@@ -91,7 +91,7 @@ class ProcessCVExtraction implements ShouldQueue
                 }
             }
 
-            // 5. Lưu Kinh nghiệm làm việc
+            //  Lưu Kinh nghiệm làm việc
             if (!empty($extractedData['experience']) && is_array($extractedData['experience'])) {
                 foreach ($extractedData['experience'] as $exp) {
                     KinhNghiemLamViec::create([
@@ -105,11 +105,12 @@ class ProcessCVExtraction implements ShouldQueue
                 }
             }
 
-            // 6. Xử lý Kỹ năng và đồng bộ Từ Điển
+            // Xử lý Kỹ năng và đồng bộ Từ Điển
             if (!empty($extractedData['skills']) && is_array($extractedData['skills'])) {
                 foreach ($extractedData['skills'] as $skill) {
                     $skillName = trim($skill['name'] ?? '');
-                    if (empty($skillName)) continue;
+                    if (empty($skillName))
+                        continue;
 
                     // Tìm hoặc tạo mới trong Từ Điển
                     $tuDien = TuDienKyNang::firstOrCreate(
@@ -126,7 +127,7 @@ class ProcessCVExtraction implements ShouldQueue
                 }
             }
 
-            // 7. Chạy thuật toán gợi ý việc làm (Matching)
+            // Chạy thuật toán gợi ý việc làm (Matching)
             $aiService->suggestJobsForCV($cv);
 
             // Đánh dấu hoàn thành
@@ -143,7 +144,7 @@ class ProcessCVExtraction implements ShouldQueue
 
         } catch (\Exception $e) {
             Log::error("CV Extraction Error [CV ID: {$this->cvId}]: " . $e->getMessage());
-            
+
             $cv->TrangThaiXuLy = 'Lỗi';
             $cv->save();
 
@@ -164,7 +165,7 @@ class ProcessCVExtraction implements ShouldQueue
         if (empty($dateStr) || $dateStr === 'null') {
             return $isStart ? now()->format('Y-m-d') : null; // Nếu startDate rỗng thì lấy hiện tại, endDate rỗng thì null (đang làm)
         }
-        
+
         try {
             return \Carbon\Carbon::parse($dateStr)->format('Y-m-d');
         } catch (\Exception $e) {

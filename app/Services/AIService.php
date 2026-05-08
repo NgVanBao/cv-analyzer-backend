@@ -16,7 +16,7 @@ class AIService
      */
     public function extractCVData(string $rawText): ?array
     {
-        // 1. Lấy danh sách các API Key để xoay vòng (Rotate)
+
         $keys = array_filter([
             env('GEMINI_API_KEY'),
             env('GEMINI_API_KEY_2'),
@@ -29,10 +29,9 @@ class AIService
             return null;
         }
 
-        // 2. Chọn ngẫu nhiên 1 Key để sử dụng
         $selectedKey = $keys[array_rand($keys)];
 
-        // 3. Lấy danh sách kỹ năng hiện có trong Từ điển để AI "chuẩn hóa"
+        //  Lấy danh sách kỹ năng hiện có trong Từ điển để AI "chuẩn hóa"
         $existingSkills = \App\Models\TuDienKyNang::pluck('TenKyNang')->toArray();
         $skillsListStr = implode(', ', $existingSkills);
 
@@ -85,7 +84,7 @@ class AIService
         ";
 
         try {
-            // Sử dụng model gemini-flash-latest với Key đã chọn
+
             $client = \Gemini::client($selectedKey);
             $response = $client->generativeModel('gemini-flash-latest')->generateContent($prompt);
 
@@ -197,7 +196,8 @@ class AIService
                 // Nghỉ 2 giây để tránh lỗi Rate Limit (429 Too Many Requests)
                 sleep(2);
                 $phanTich = $this->generateAIRecommendation($cv, $job);
-                if ($phanTich) $countDetailed++;
+                if ($phanTich)
+                    $countDetailed++;
             }
 
             \App\Models\KetQuaGoiY::create([
@@ -215,8 +215,9 @@ class AIService
     public function generateAIRecommendation(HoSoCV $cv, TinTuyenDung $job): ?array
     {
         $keys = array_filter([env('GEMINI_API_KEY'), env('GEMINI_API_KEY_2'), env('GEMINI_API_KEY_3'), env('GEMINI_API_KEY_4'), env('GEMINI_API_KEY_5')]);
-        if (empty($keys)) return null;
-        
+        if (empty($keys))
+            return null;
+
         $selectedKey = $keys[array_rand($keys)];
 
         $cvData = $cv->DuLieuAITrichXuat;
@@ -241,9 +242,9 @@ class AIService
         try {
             $client = \Gemini::client($selectedKey);
             $response = $client->generativeModel('gemini-flash-latest')->generateContent($prompt);
-            
+
             $text = $response->text();
-            
+
             Log::info('Gemini AI Response Text: ' . $text);
 
             $cleanJson = preg_replace('/```json|```/', '', $text);
