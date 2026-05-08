@@ -42,6 +42,12 @@ class AIService
         - Tôi có một danh sách kỹ năng chuẩn trong hệ thống: [{$skillsListStr}].
         - Khi trích xuất kỹ năng, hãy cố gắng khớp chúng với danh sách chuẩn này. Nếu một kỹ năng trong CV tương đương với một kỹ năng trong danh sách (VD: 'Laravel' tương đương 'PHP Laravel'), hãy dùng tên trong danh sách chuẩn.
         - Chỉ khi nào kỹ năng đó hoàn toàn mới và không có trong danh sách thì mới tự tạo tên mới (ngắn gọn, 1-3 từ).
+        
+        QUY TẮC PHÂN LOẠI MỨC ĐỘ (level):
+        - Cơ bản: Mới bắt đầu, kiến thức nền tảng hoặc kinh nghiệm dưới 1 năm.
+        - Khá: Sử dụng thành thạo, có 1-3 năm kinh nghiệm hoặc có project cá nhân/thực tế.
+        - Giỏi: Hiểu sâu sắc, trên 3 năm kinh nghiệm hoặc vị trí Senior/Leader.
+        - Xuất sắc: Chuyên gia, có chứng chỉ cao cấp hoặc trên 5 năm kinh nghiệm dày dặn.
 
         Cấu trúc JSON yêu cầu:
         {
@@ -82,9 +88,9 @@ class AIService
             // Sử dụng model gemini-flash-latest với Key đã chọn
             $client = \Gemini::client($selectedKey);
             $response = $client->generativeModel('gemini-flash-latest')->generateContent($prompt);
-            
+
             $text = $response->text();
-            
+
             // Xóa markdown json tag nếu Gemini trả về
             $text = str_replace('```json', '', $text);
             $text = str_replace('```', '', $text);
@@ -112,10 +118,10 @@ class AIService
     {
         // Lấy danh sách kỹ năng CV đang có (id các kỹ năng)
         $cvSkills = $cv->kyNangTrongCVs()->pluck('MaKyNang')->toArray();
-        
+
         // Lấy danh sách kỹ năng Yêu cầu của Job
         $requiredSkills = $job->kyNangYeuCaus()->get();
-        
+
         if ($requiredSkills->isEmpty()) {
             // Nếu Job không yêu cầu kỹ năng cụ thể nào, cho mặc định 50% hoặc 100% tuỳ logic của bạn. 
             // Tạm thời trả về 0 nếu không có tiêu chí đánh giá.
@@ -133,20 +139,24 @@ class AIService
             'Xuất sắc' => 1.2,
         ];
 
+        // Tối ưu: Lấy tất cả kỹ năng của CV một lần duy nhất để tránh truy vấn trong vòng lặp (N+1)
+        $cvSkillsMap = $cv->kyNangTrongCVs()->get()->keyBy('MaKyNang');
+
         foreach ($requiredSkills as $req) {
             $weight = $req->TrongSoDiem ?? 1;
             $totalRequiredScore += $weight;
 
-            // Lấy thông tin kỹ năng tương ứng trong CV (nếu có)
-            $cvSkill = $cv->kyNangTrongCVs()->where('MaKyNang', $req->MaKyNang)->first();
-            
+            // Tìm kỹ năng trong CV từ Map đã lấy sẵn
+            $cvSkill = $cvSkillsMap->get($req->MaKyNang);
+
             if ($cvSkill) {
                 $multiplier = $levelMultipliers[$cvSkill->MucDo] ?? 0.5;
                 $achievedScore += ($weight * $multiplier);
             }
         }
 
-        if ($totalRequiredScore == 0) return 0;
+        if ($totalRequiredScore == 0)
+            return 0;
 
         $matchPercentage = ($achievedScore / $totalRequiredScore) * 100;
 
@@ -164,17 +174,83 @@ class AIService
         // Xóa gợi ý cũ
         \App\Models\KetQuaGoiY::where('MaCV', $cv->MaCV)->delete();
 
+        // Sắp xếp các job theo điểm cao nhất trước để lấy Top phân tích chi tiết
+        $scoredJobs = [];
         foreach ($jobs as $job) {
             $score = $this->calculateMatchScore($cv, $job);
-
-            // Chỉ lưu nếu tỷ lệ phù hợp > 0
             if ($score > 0) {
-                \App\Models\KetQuaGoiY::create([
-                    'MaCV' => $cv->MaCV,
-                    'MaTuyenDung' => $job->MaTuyenDung,
-                    'TyLePhuHop' => $score
-                ]);
+                $scoredJobs[] = ['job' => $job, 'score' => $score];
             }
+        }
+
+        // Sắp xếp giảm dần theo điểm
+        usort($scoredJobs, fn($a, $b) => $b['score'] <=> $a['score']);
+
+        $countDetailed = 0;
+        foreach ($scoredJobs as $item) {
+            $job = $item['job'];
+            $score = $item['score'];
+
+            $phanTich = null;
+            // Chỉ phân tích chi tiết cho Top 3 công việc có điểm >= 40% để tránh quá tải API
+            if ($score >= 40 && $countDetailed < 3) {
+                // Nghỉ 2 giây để tránh lỗi Rate Limit (429 Too Many Requests)
+                sleep(2);
+                $phanTich = $this->generateAIRecommendation($cv, $job);
+                if ($phanTich) $countDetailed++;
+            }
+
+            \App\Models\KetQuaGoiY::create([
+                'MaCV' => $cv->MaCV,
+                'MaTuyenDung' => $job->MaTuyenDung,
+                'TyLePhuHop' => $score,
+                'PhanTichChiTiet' => $phanTich
+            ]);
+        }
+    }
+
+    /**
+     * Gọi AI để phân tích sâu sự phù hợp giữa CV và một Job cụ thể.
+     */
+    public function generateAIRecommendation(HoSoCV $cv, TinTuyenDung $job): ?array
+    {
+        $keys = array_filter([env('GEMINI_API_KEY'), env('GEMINI_API_KEY_2'), env('GEMINI_API_KEY_3'), env('GEMINI_API_KEY_4'), env('GEMINI_API_KEY_5')]);
+        if (empty($keys)) return null;
+        
+        $selectedKey = $keys[array_rand($keys)];
+
+        $cvData = $cv->DuLieuAITrichXuat;
+        $jobDescription = $job->MoTaChiTiet;
+
+        $prompt = "Bạn là chuyên gia tư vấn nghề nghiệp. Hãy so sánh dữ liệu CV và Mô tả công việc (JD) sau đây:
+        
+        DỮ LIỆU CV (JSON):
+        {$cvData}
+        
+        MÔ TẢ CÔNG VIỆC (JD):
+        {$jobDescription}
+        
+        Hãy phân tích và trả về ĐÚNG định dạng JSON sau (không kèm giải thích):
+        {
+          \"kynang_phuhop\": [\"kỹ năng 1\", \"kỹ năng 2\"],
+          \"kynang_thieu\": [\"kỹ năng 1\", \"kỹ năng 2\"],
+          \"khuyen_nghi\": \"Lời khuyên ngắn gọn để cải thiện CV hoặc ứng tuyển tốt hơn.\",
+          \"lotrinh\": [\"Bước 1: ...\", \"Bước 2: ...\"]
+        }";
+
+        try {
+            $client = \Gemini::client($selectedKey);
+            $response = $client->generativeModel('gemini-flash-latest')->generateContent($prompt);
+            
+            $text = $response->text();
+            
+            Log::info('Gemini AI Response Text: ' . $text);
+
+            $cleanJson = preg_replace('/```json|```/', '', $text);
+            return json_decode(trim($cleanJson), true);
+        } catch (\Exception $e) {
+            Log::error('Lỗi khi tạo khuyến nghị AI: ' . $e->getMessage());
+            return null;
         }
     }
 }

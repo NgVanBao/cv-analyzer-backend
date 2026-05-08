@@ -17,7 +17,22 @@ class KetQuaGoiY extends Model
         'MaCV',
         'MaTuyenDung',
         'TyLePhuHop',
+        'PhanTichChiTiet',
     ];
+
+    // Mutator: Khi lưu vào DB, giữ nguyên tiếng Việt (không mã hóa \u)
+    public function setPhanTichChiTietAttribute($value)
+    {
+        $this->attributes['PhanTichChiTiet'] = is_array($value) 
+            ? json_encode($value, JSON_UNESCAPED_UNICODE) 
+            : $value;
+    }
+
+    // Accessor: Khi lấy ra code, tự động chuyển thành mảng (array)
+    public function getPhanTichChiTietAttribute($value)
+    {
+        return json_decode($value, true);
+    }
 
     public function hoSoCV()
     {
