@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\HoSoCV;
+use App\Services\AIService;
+use Smalot\PdfParser\Parser;
 
 class HoSoCVController extends Controller
 {
@@ -79,5 +81,43 @@ class HoSoCVController extends Controller
         return response()->json([
             'message' => 'Xóa hồ sơ CV thành công!'
         ]);
+    }
+
+    public function analyzeCustomJD(Request $request, AIService $aiService)
+    {
+        $request->validate([
+            'file_cv' => 'required|mimes:pdf|max:5120',
+            'job_description' => 'required|string',
+        ]);
+
+        try {
+            $file = $request->file('file_cv');
+            $filePath = $file->getPathname();
+
+            $parser = new Parser();
+            $pdf = $parser->parseFile($filePath);
+            $rawText = $pdf->getText();
+
+            // Giới hạn độ dài và chuẩn hóa encoding
+            $rawText = mb_substr($rawText, 0, 15000, 'UTF-8');
+            $rawText = mb_convert_encoding($rawText, 'UTF-8', 'UTF-8');
+
+            $analysisResult = $aiService->analyzeCustomJD($rawText, $request->job_description);
+
+            if (!$analysisResult) {
+                return response()->json([
+                    'message' => 'AI không thể phân tích dữ liệu, vui lòng thử lại.'
+                ], 500);
+            }
+
+            return response()->json([
+                'message' => 'Phân tích thành công!',
+                'data' => $analysisResult
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Lỗi khi trích xuất hoặc phân tích: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

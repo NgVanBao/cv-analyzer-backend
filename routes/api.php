@@ -37,6 +37,7 @@ Route::delete('nguoi-dung/{id}', [NguoiDungController::class, 'destroy']);
 
 Route::get('ho-so-cv', [HoSoCVController::class, 'index']);
 Route::post('ho-so-cv', [HoSoCVController::class, 'store']);
+Route::post('ho-so-cv/analyze-custom-jd', [HoSoCVController::class, 'analyzeCustomJD']);
 Route::get('ho-so-cv/{id}', [HoSoCVController::class, 'show']);
 Route::put('ho-so-cv/{id}', [HoSoCVController::class, 'update']);
 Route::delete('ho-so-cv/{id}', [HoSoCVController::class, 'destroy']);

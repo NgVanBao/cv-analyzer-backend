@@ -254,4 +254,67 @@ class AIService
             return null;
         }
     }
+
+    /**
+     * Gọi AI để phân tích trực tiếp (Real-time) sự phù hợp giữa nội dung text CV và đoạn text JD tùy chọn.
+     */
+    public function analyzeCustomJD(string $cvText, string $jdText): ?array
+    {
+        $keys = array_filter([
+            env('GEMINI_API_KEY'),
+            env('GEMINI_API_KEY_2'),
+            env('GEMINI_API_KEY_3'),
+            env('GEMINI_API_KEY_4'),
+            env('GEMINI_API_KEY_5')
+        ]);
+        if (empty($keys)) {
+            Log::error('Không tìm thấy Gemini API Key.');
+            return null;
+        }
+
+        $selectedKey = $keys[array_rand($keys)];
+
+        $prompt = "Bạn là một chuyên gia tuyển dụng và tư vấn nghề nghiệp cấp cao. Hãy đọc kỹ nội dung CV của ứng viên và Mô tả công việc (JD) tùy chọn dưới đây:
+        
+        --- NỘI DUNG CV ---
+        {$cvText}
+        
+        --- MÔ TẢ CÔNG VIỆC (JD) ---
+        {$jdText}
+        
+        Hãy phân tích chi tiết mức độ đáp ứng của ứng viên so với yêu cầu JD, sau đó trả về kết quả dưới dạng JSON (KHÔNG bọc trong markdown, KHÔNG thêm bất kỳ giải thích nào ngoài chuỗi JSON) theo đúng cấu trúc sau:
+        {
+          \"tyle_phuhop\": 85, // Số nguyên từ 0 đến 100 thể hiện phần trăm phù hợp tổng quan
+          \"kynang_phuhop\": [\"kỹ năng 1\", \"kỹ năng 2\"], // Các kỹ năng/yêu cầu trong JD mà CV đáp ứng tốt
+          \"kynang_thieu\": [\"kỹ năng 1\", \"kỹ năng 2\"], // Các kỹ năng/yêu cầu quan trọng trong JD mà CV chưa có hoặc còn yếu
+          \"khuyen_nghi\": \"Đoạn nhận xét ngắn gọn (khoảng 2-3 câu) đánh giá ưu nhược điểm và gợi ý chỉnh sửa CV để trúng tuyển.\",
+          \"lotrinh\": [
+            \"Bước 1: ...\",
+            \"Bước 2: ...\",
+            \"Bước 3: ...\"
+          ] // Đề xuất các bước hành động cụ thể để ứng viên bổ sung kiến thức hoặc cải thiện kỹ năng còn thiếu
+        }";
+
+        try {
+            $client = \Gemini::client($selectedKey);
+            $response = $client->generativeModel('gemini-flash-latest')->generateContent($prompt);
+
+            $text = $response->text();
+            Log::info('Gemini AI Custom JD Analysis text: ' . $text);
+
+            $cleanJson = preg_replace('/```json|```/', '', $text);
+            $cleanJson = trim($cleanJson);
+
+            $data = json_decode($cleanJson, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return $data;
+            } else {
+                Log::error('Lỗi parse JSON trong analyzeCustomJD: ' . json_last_error_msg());
+                return null;
+            }
+        } catch (\Exception $e) {
+            Log::error('Lỗi khi gọi AI analyzeCustomJD: ' . $e->getMessage());
+            return null;
+        }
+    }
 }
