@@ -86,16 +86,30 @@ class HoSoCVController extends Controller
     public function analyzeCustomJD(Request $request, AIService $aiService)
     {
         $request->validate([
+            'MaTaiKhoan' => 'required|integer|exists:NguoiDung,MaTaiKhoan',
             'file_cv' => 'required|mimes:pdf|max:5120',
             'job_description' => 'required|string',
         ]);
 
         try {
             $file = $request->file('file_cv');
-            $filePath = $file->getPathname();
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('cvs', $fileName, 'public');
+            
+            // 1. Tạo CV và đẩy job bóc tách thông thường
+            $hoSoCV = HoSoCV::create([
+                'MaTaiKhoan' => $request->MaTaiKhoan,
+                'TenFile' => $fileName,
+                'DuongDanFile' => $filePath,
+                'TrangThaiXuLy' => 'Đang xử lý',
+            ]);
+            \App\Jobs\ProcessCVExtraction::dispatch($hoSoCV->MaCV);
+
+            // Đường dẫn vật lý tuyệt đối để Parser đọc
+            $absolutePath = storage_path('app/public/' . $filePath);
 
             $parser = new Parser();
-            $pdf = $parser->parseFile($filePath);
+            $pdf = $parser->parseFile($absolutePath);
             $rawText = $pdf->getText();
 
             // Giới hạn độ dài và chuẩn hóa encoding
@@ -109,6 +123,22 @@ class HoSoCVController extends Controller
                     'message' => 'AI không thể phân tích dữ liệu, vui lòng thử lại.'
                 ], 500);
             }
+
+            // 2. Lưu Custom JD như một TinTuyenDung ảo
+            $tinTuyenDung = \App\Models\TinTuyenDung::create([
+                'TieuDe' => 'Phân tích Custom JD - ' . now()->format('Y-m-d H:i:s'),
+                'TenCongTy' => 'Custom JD',
+                'MoTaChiTiet' => $request->job_description,
+                'TrangThai' => 'Custom'
+            ]);
+
+            // 3. Lưu kết quả phân tích vào KetQuaGoiY
+            \App\Models\KetQuaGoiY::create([
+                'MaCV' => $hoSoCV->MaCV,
+                'MaTuyenDung' => $tinTuyenDung->MaTuyenDung,
+                'TyLePhuHop' => $analysisResult['tyle_phuhop'] ?? 0,
+                'PhanTichChiTiet' => json_encode($analysisResult, JSON_UNESCAPED_UNICODE)
+            ]);
 
             return response()->json([
                 'message' => 'Phân tích thành công!',

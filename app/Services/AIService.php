@@ -170,8 +170,11 @@ class AIService
         // 1. Lấy tất cả tin tuyển dụng đang mở (TrangThai = 'DangMo')
         $jobs = \App\Models\TinTuyenDung::where('TrangThai', 'DangMo')->get();
 
-        // Xóa gợi ý cũ
-        \App\Models\KetQuaGoiY::where('MaCV', $cv->MaCV)->delete();
+        // Xóa gợi ý cũ (Trừ các đánh giá Custom JD do người dùng tự nhập)
+        $customJobIds = \App\Models\TinTuyenDung::where('TrangThai', 'Custom')->pluck('MaTuyenDung');
+        \App\Models\KetQuaGoiY::where('MaCV', $cv->MaCV)
+            ->whereNotIn('MaTuyenDung', $customJobIds)
+            ->delete();
 
         // Sắp xếp các job theo điểm cao nhất trước để lấy Top phân tích chi tiết
         $scoredJobs = [];
