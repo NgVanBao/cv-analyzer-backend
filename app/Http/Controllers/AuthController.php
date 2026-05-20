@@ -108,4 +108,23 @@ class AuthController extends Controller
             'message' => 'Cập nhật mật khẩu thành công!'
         ]);
     }
+
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'HoTen' => 'required|string|max:255',
+            'Email' => 'required|email|unique:NguoiDung,Email,' . $request->user()->MaTaiKhoan . ',MaTaiKhoan',
+        ]);
+
+        $user = $request->user();
+        $user->HoTen = $request->HoTen;
+        $user->Email = $request->Email;
+        // Hiện tại DB chưa có cột SoDienThoai nên ta tạm thời chưa lưu cột này
+        $user->save();
+
+        return response()->json([
+            'message' => 'Cập nhật thông tin cơ bản thành công!',
+            'user' => $user
+        ]);
+    }
 }
