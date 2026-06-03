@@ -15,7 +15,7 @@ class KinhNghiemLamViecController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'MaCV' => 'required|integer|exists:ho_so_cv,MaCV',
+            'MaCV' => 'required|integer|exists:HoSoCV,MaCV',
             'TenCongTy' => 'required|string|max:255',
             'ViTriCongTac' => 'required|string|max:255',
             'ThoiGianTu' => 'required|date',
@@ -38,7 +38,7 @@ class KinhNghiemLamViecController extends Controller
     {
         $kinhNghiem = KinhNghiemLamViec::findOrFail($id);
         $validated = $request->validate([
-            'MaCV' => 'required|integer|exists:ho_so_cv,MaCV',
+            'MaCV' => 'required|integer|exists:HoSoCV,MaCV',
             'TenCongTy' => 'required|string|max:255',
             'ViTriCongTac' => 'required|string|max:255',
             'ThoiGianTu' => 'required|date',

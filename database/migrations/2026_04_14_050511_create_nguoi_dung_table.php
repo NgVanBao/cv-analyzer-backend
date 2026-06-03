@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('nguoi_dung', function (Blueprint $table) {
+        Schema::create('NguoiDung', function (Blueprint $table) {
             $table->increments('MaTaiKhoan');
             $table->string('HoTen', 255);
             $table->string('Email', 255)->unique();
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('nguoi_dung');
+        Schema::dropIfExists('NguoiDung');
     }
 };

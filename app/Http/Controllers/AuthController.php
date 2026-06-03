@@ -13,7 +13,7 @@ class AuthController extends Controller
     {
         $validated = $request->validate([
             'HoTen' => 'required|string|max:255',
-            'Email' => 'required|email|unique:nguoi_dung,Email',
+            'Email' => 'required|email|unique:NguoiDung,Email',
             'MatKhau' => 'required|string|min:6',
             'Vaitro' => 'required|string|max:50',
         ]);
@@ -69,5 +69,62 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         return response()->json($request->user());
+    }
+    public function updateEmail(Request $request)
+    {
+        $request->validate([
+            'Email' => 'required|email|unique:NguoiDung,Email,' . $request->user()->MaTaiKhoan . ',MaTaiKhoan',
+        ]);
+
+        $user = $request->user();
+        $user->Email = $request->Email;
+        $user->save();
+
+        return response()->json([
+            'message' => 'Cập nhật email thành công!',
+            'user' => $user
+        ]);
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|min:6',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->current_password, $user->MatKhau)) {
+            return response()->json([
+                'message' => 'Mật khẩu hiện tại không chính xác.'
+            ], 400);
+        }
+
+        $user->MatKhau = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json([
+            'message' => 'Cập nhật mật khẩu thành công!'
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'HoTen' => 'required|string|max:255',
+            'Email' => 'required|email|unique:NguoiDung,Email,' . $request->user()->MaTaiKhoan . ',MaTaiKhoan',
+        ]);
+
+        $user = $request->user();
+        $user->HoTen = $request->HoTen;
+        $user->Email = $request->Email;
+        // Hiện tại DB chưa có cột SoDienThoai nên ta tạm thời chưa lưu cột này
+        $user->save();
+
+        return response()->json([
+            'message' => 'Cập nhật thông tin cơ bản thành công!',
+            'user' => $user
+        ]);
     }
 }

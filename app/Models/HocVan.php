@@ -9,7 +9,7 @@ class HocVan extends Model
 {
     use HasFactory;
 
-    protected $table = 'hoc_van';
+    protected $table = 'HocVan';
     protected $primaryKey = 'MaHocVan';
     public $timestamps = true;
 

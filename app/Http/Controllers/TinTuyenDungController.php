@@ -21,6 +21,11 @@ class TinTuyenDungController extends Controller
             'LuongToiThieu' => 'nullable|integer|min:0',
             'LuongToiDa' => 'nullable|integer|gte:LuongToiThieu',
             'TrangThai' => 'required|string|max:50',
+            'DiaDiem' => 'nullable|string|max:255',
+            'NgayDangTuyen' => 'nullable|date',
+            'HanNop' => 'nullable|date',
+            'LoaiHinh' => 'nullable|string|max:100',
+            'CapBac' => 'nullable|string|max:100',
         ]);
         $tinTuyenDung = TinTuyenDung::create($validated);
         return response()->json([
@@ -44,6 +49,11 @@ class TinTuyenDungController extends Controller
             'LuongToiThieu' => 'nullable|integer|min:0',
             'LuongToiDa' => 'nullable|integer|gte:LuongToiThieu',
             'TrangThai' => 'required|string|max:50',
+            'DiaDiem' => 'nullable|string|max:255',
+            'NgayDangTuyen' => 'nullable|date',
+            'HanNop' => 'nullable|date',
+            'LoaiHinh' => 'nullable|string|max:100',
+            'CapBac' => 'nullable|string|max:100',
         ]);
         $tinTuyenDung->update($validated);
         return response()->json([

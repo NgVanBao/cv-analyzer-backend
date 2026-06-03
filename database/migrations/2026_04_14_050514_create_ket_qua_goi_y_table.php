@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ket_qua_goi_y', function (Blueprint $table) {
+        Schema::create('KetQuaGoiY', function (Blueprint $table) {
             $table->increments('MaKetQua');
             $table->unsignedInteger('MaCV');
             $table->unsignedInteger('MaTuyenDung');
             $table->float('TyLePhuHop');
             $table->timestamps();
 
-            $table->foreign('MaCV')->references('MaCV')->on('ho_so_cv')->onDelete('cascade');
-            $table->foreign('MaTuyenDung')->references('MaTuyenDung')->on('tin_tuyen_dung')->onDelete('cascade');
+            $table->foreign('MaCV')->references('MaCV')->on('HoSoCV')->onDelete('cascade');
+            $table->foreign('MaTuyenDung')->references('MaTuyenDung')->on('TinTuyenDung')->onDelete('cascade');
         });
     }
 
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ket_qua_goi_y');
+        Schema::dropIfExists('KetQuaGoiY');
     }
 };

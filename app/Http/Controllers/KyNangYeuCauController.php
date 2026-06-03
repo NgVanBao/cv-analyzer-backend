@@ -15,8 +15,8 @@ class KyNangYeuCauController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'MaKyNang' => 'required|integer|exists:tu_dien_ky_nang,MaKyNang',
-            'MaTuyenDung' => 'required|integer|exists:tin_tuyen_dung,MaTuyenDung',
+            'MaKyNang' => 'required|integer|exists:TuDienKyNang,MaKyNang',
+            'MaTuyenDung' => 'required|integer|exists:TinTuyenDung,MaTuyenDung',
             'TrongSoDiem' => 'nullable|integer|min:0',
         ]);
         $kyNangYeuCau = KyNangYeuCau::create($validated);
@@ -35,8 +35,8 @@ class KyNangYeuCauController extends Controller
     {
         $kyNangYeuCau = KyNangYeuCau::findOrFail($id);
         $validated = $request->validate([
-            'MaKyNang' => 'required|integer|exists:tu_dien_ky_nang,MaKyNang',
-            'MaTuyenDung' => 'required|integer|exists:tin_tuyen_dung,MaTuyenDung',
+            'MaKyNang' => 'required|integer|exists:TuDienKyNang,MaKyNang',
+            'MaTuyenDung' => 'required|integer|exists:TinTuyenDung,MaTuyenDung',
             'TrongSoDiem' => 'nullable|integer|min:0',
         ]);
         $kyNangYeuCau->update($validated);

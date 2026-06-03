@@ -10,7 +10,7 @@ class NguoiDung extends Authenticatable
 {
     use HasApiTokens, HasFactory;
 
-    protected $table = 'nguoi_dung';
+    protected $table = 'NguoiDung';
     protected $primaryKey = 'MaTaiKhoan';
     public $timestamps = true;
 

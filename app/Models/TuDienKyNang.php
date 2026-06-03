@@ -9,7 +9,7 @@ class TuDienKyNang extends Model
 {
     use HasFactory;
 
-    protected $table = 'tu_dien_ky_nang';
+    protected $table = 'TuDienKyNang';
     protected $primaryKey = 'MaKyNang';
     public $timestamps = true;
 

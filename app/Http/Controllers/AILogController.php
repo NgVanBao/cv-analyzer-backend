@@ -15,7 +15,7 @@ class AILogController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'MaCV' => 'required|integer|exists:ho_so_cv,MaCV',
+            'MaCV' => 'required|integer|exists:HoSoCV,MaCV',
             'ThoiGian' => 'required|date',
             'TrangThai' => 'required|string|max:50',
             'NoiDungLog' => 'required|string',
@@ -36,7 +36,7 @@ class AILogController extends Controller
     {
         $aiLog = AILog::findOrFail($id);
         $validated = $request->validate([
-            'MaCV' => 'required|integer|exists:ho_so_cv,MaCV',
+            'MaCV' => 'required|integer|exists:HoSoCV,MaCV',
             'ThoiGian' => 'required|date',
             'TrangThai' => 'required|string|max:50',
             'NoiDungLog' => 'required|string',

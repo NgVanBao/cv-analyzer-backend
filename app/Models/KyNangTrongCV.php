@@ -9,7 +9,7 @@ class KyNangTrongCV extends Model
 {
     use HasFactory;
 
-    protected $table = 'ky_nang_trong_cv';
+    protected $table = 'KyNangTrongCV';
 
     // Vô hiệu hoá auto increment vì bảng này dùng composite primary key
     public $incrementing = false;
@@ -19,6 +19,7 @@ class KyNangTrongCV extends Model
     protected $fillable = [
         'MaKyNang',
         'MaCV',
+        'MucDo',
     ];
 
     public function hoSoCV()

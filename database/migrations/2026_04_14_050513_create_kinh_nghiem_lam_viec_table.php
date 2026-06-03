@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kinh_nghiem_lam_viec', function (Blueprint $table) {
+        Schema::create('KinhNghiemLamViec', function (Blueprint $table) {
             $table->increments('MaKinhNghiem');
             $table->unsignedInteger('MaCV');
             $table->string('TenCongTy', 255);
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->text('MoTaChiTiet')->nullable();
             $table->timestamps();
 
-            $table->foreign('MaCV')->references('MaCV')->on('ho_so_cv')->onDelete('cascade');
+            $table->foreign('MaCV')->references('MaCV')->on('HoSoCV')->onDelete('cascade');
         });
     }
 
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('kinh_nghiem_lam_viec');
+        Schema::dropIfExists('KinhNghiemLamViec');
     }
 };

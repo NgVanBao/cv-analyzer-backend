@@ -15,7 +15,7 @@ class HocVanController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'MaCV' => 'required|integer|exists:ho_so_cv,MaCV',
+            'MaCV' => 'required|integer|exists:HoSoCV,MaCV',
             'TenTruong' => 'required|string|max:255',
             'ChuyenNganh' => 'required|string|max:255',
             'BangCap' => 'required|string|max:100',
@@ -38,7 +38,7 @@ class HocVanController extends Controller
     {
         $hocVan = HocVan::findOrFail($id);
         $validated = $request->validate([
-            'MaCV' => 'required|integer|exists:ho_so_cv,MaCV',
+            'MaCV' => 'required|integer|exists:HoSoCV,MaCV',
             'TenTruong' => 'required|string|max:255',
             'ChuyenNganh' => 'required|string|max:255',
             'BangCap' => 'required|string|max:100',

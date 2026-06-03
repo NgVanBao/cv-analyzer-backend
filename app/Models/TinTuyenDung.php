@@ -9,7 +9,7 @@ class TinTuyenDung extends Model
 {
     use HasFactory;
 
-    protected $table = 'tin_tuyen_dung';
+    protected $table = 'TinTuyenDung';
     protected $primaryKey = 'MaTuyenDung';
     public $timestamps = true;
 
@@ -20,6 +20,11 @@ class TinTuyenDung extends Model
         'LuongToiThieu',
         'LuongToiDa',
         'TrangThai',
+        'DiaDiem',
+        'NgayDangTuyen',
+        'HanNop',
+        'LoaiHinh',
+        'CapBac',
     ];
 
     public function ketQuaGoiYs()
